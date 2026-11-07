@@ -1,0 +1,20 @@
+{
+ "unstop_pages": {
+  "competitions": 8,
+  "jobs": 10,
+  "internships": 8
+ },
+ "max_detail_calls": 220,
+ "watch": [
+  {
+   "name": "Wipro careers (Elite / freshers)",
+   "url": "https://careers.wipro.com/elite"
+  },
+  {
+   "name": "Tech Mahindra careers",
+   "url": "https://careers.techmahindra.com/"
+  }
+ ],
+ "note": "watch: official careers pages (chrome:true = read with headless Chrome). TCS, Infosys, HCLTech block automated readers: they come in through News leads.",
+ "whatsapp_channel": "https://whatsapp.com/channel/0029VbCy1Bh9hXF2KlGBbj1k"
+}

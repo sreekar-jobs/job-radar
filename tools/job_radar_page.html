@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Job Radar</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800;900&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#0B1F3A;--navy2:#13294b;--blue:#2F80FF;--yellow:#FFD23F;--green:#22C55E;--coral:#FF5A5F;
+--bg:#f3f5f9;--card:#fff;--text:#0f1b2d;--muted:#5b6b82;--line:#e3e8f0}
+@media (prefers-color-scheme:dark){:root{--bg:#081426;--card:#0f2140;--text:#eaf1ff;--muted:#9fb0cc;--line:#1f3560}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:15px/1.45 Poppins,system-ui,sans-serif}
+header{background:var(--navy);color:#fff;padding:18px 16px 14px;position:sticky;top:0;z-index:5;box-shadow:0 2px 12px #0004}
+.wrap{max-width:1100px;margin:0 auto}
+h1{font:900 26px Montserrat,sans-serif;margin:0;letter-spacing:.5px}h1 span{color:var(--yellow)}
+.top{display:flex;gap:12px;align-items:center;flex-wrap:wrap;justify-content:space-between}
+.stats{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.stat{background:var(--navy2);border-radius:10px;padding:6px 12px;font-size:13px}.stat b{font-size:17px;color:var(--yellow);margin-right:4px}
+button{font:600 14px Poppins,sans-serif;border:0;border-radius:10px;padding:10px 16px;cursor:pointer}
+#run{background:var(--yellow);color:var(--navy);font-weight:700;font-size:15px;padding:12px 20px}
+#run:disabled{opacity:.6;cursor:wait}
+#progress{font-size:12px;color:#c9d6ee;margin-top:8px;min-height:16px}
+.bar{display:flex;gap:6px;flex-wrap:wrap;margin:14px 0 4px}
+.tab{background:var(--card);color:var(--text);border:1px solid var(--line)}.tab.on{background:var(--blue);color:#fff;border-color:var(--blue)}
+.tab small{opacity:.8;margin-left:4px}
+#q{flex:1;min-width:180px;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--text);font:14px Poppins}
+main{padding:0 16px 40px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin:12px 0;position:relative}
+.card.t1{border-left:6px solid var(--green)}.card.t2{border-left:6px solid var(--yellow)}.card.t3{border-left:6px solid var(--line)}
+.card.posted{opacity:.55}
+.row{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.co{font:800 18px Montserrat,sans-serif}.role{font-weight:600;color:var(--muted);margin-top:2px}
+.badges{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+.b{font-size:12px;font-weight:600;border-radius:20px;padding:3px 10px;background:var(--bg);border:1px solid var(--line)}
+.b.g{background:#22c55e22;color:#15803d;border-color:#22c55e66}.b.y{background:#ffd23f33;color:#8a6500;border-color:#ffd23f88}
+.b.r{background:#ff5a5f22;color:#c2272d;border-color:#ff5a5f66}.b.n{background:var(--navy);color:var(--yellow);border-color:var(--navy)}
+@media (prefers-color-scheme:dark){.b.g{color:#6ee7a0}.b.y{color:var(--yellow)}.b.r{color:#ff9a9d}}
+.why{font-size:13px;color:var(--muted);margin:2px 0 8px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px 16px;font-size:14px}
+.grid div b{display:block;font-size:11px;letter-spacing:.6px;text-transform:uppercase;color:var(--muted);font-weight:600}
+.acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.acts a,.acts button{font:600 13px Poppins;border-radius:9px;padding:8px 12px;text-decoration:none}
+.go{background:var(--blue);color:#fff}.cp{background:var(--yellow);color:var(--navy)}.gh{background:var(--bg);color:var(--text);border:1px solid var(--line)!important}
+.empty{text-align:center;color:var(--muted);padding:50px 10px}
+details{margin-top:8px;font-size:13px;color:var(--muted)}summary{cursor:pointer}
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--navy);color:#fff;padding:10px 18px;border-radius:10px;display:none;z-index:9}
+.legend{font-size:12px;color:var(--muted);margin:6px 0 0}
+.wa{background:#25D366;color:#fff}
+.sel{padding:10px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--text);font:13px Poppins}
+.rank{font:900 22px Montserrat,sans-serif;color:var(--blue);min-width:44px}
+.tpill{border-radius:12px;padding:6px 12px;font:700 12px Poppins;text-align:center;line-height:1.2;cursor:help;border:2px solid}
+.tpill b{display:block;font:900 22px Montserrat,sans-serif}.tpill small{font-size:11px;opacity:.7}
+.tpill.good{border-color:var(--green);color:#15803d;background:#22c55e18}.tpill.check{border-color:#ffb020;color:#9a6700;background:#ffd23f22}
+.tpill.red{border-color:var(--coral);color:#c2272d;background:#ff5a5f18}
+@media (prefers-color-scheme:dark){.tpill.good{color:#6ee7a0}.tpill.check{color:var(--yellow)}.tpill.red{color:#ff9a9d}}
+.sc{background:#7c3aed;color:#fff}.ck{background:var(--navy);color:var(--yellow)}
+.trust{font-size:13px;border-radius:10px;padding:8px 10px;margin-top:8px;background:var(--bg);border:1px solid var(--line)}
+.trust a{color:var(--blue);font-weight:600;margin-right:12px}
+#modal{position:fixed;inset:0;background:#000a;display:none;align-items:center;justify-content:center;z-index:20;padding:16px}
+#modal .box{background:var(--card);border-radius:16px;max-width:560px;width:100%;max-height:92vh;overflow:auto;padding:16px}
+#modal h3{margin:0 0 4px;font:800 18px Montserrat,sans-serif}#modal p{margin:0 0 10px;font-size:13px;color:var(--muted)}
+#watext{width:100%;min-height:340px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--text);font:14px/1.45 system-ui,sans-serif;padding:10px}
+#chrow{display:flex;gap:8px;margin:8px 0}#chlink{flex:1;padding:9px;border-radius:9px;border:1px solid var(--line);background:var(--bg);color:var(--text);font:13px Poppins}
+.mrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.mrow a,.mrow button{font:600 14px Poppins;border-radius:10px;padding:10px 14px;text-decoration:none}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <div class="top">
+    <h1>JOB <span>RADAR</span></h1>
+    <button id="run">🔍 Search now</button>
+  </div>
+  <div class="stats" id="stats"></div>
+  <div id="progress"></div>
+</div></header>
+<main><div class="wrap">
+  <div class="bar" id="tabs"></div>
+  <div class="bar"><input id="q" placeholder="Search company, role, batch, city…">
+    <select id="fcat" class="sel"><option value="">IT + Non-IT</option><option>IT</option><option>Non-IT</option></select>
+    <select id="fbatch" class="sel"><option value="">All batches</option></select>
+    <select id="fcity" class="sel"><option value="">All cities</option></select>
+    <select id="ftrust" class="sel"><option value="">Any trust</option><option value="good">🛡 Trusted only</option><option value="nored">Hide risky</option></select>
+    <select id="fsort" class="sel"><option value="rank">Sort: Best rank</option><option value="trust">Most trusted</option><option value="deadline">Deadline soonest</option><option value="reg">Most registered</option><option value="new">Newest</option></select>
+    <select id="fkind" class="sel"><option value="">Jobs + internships</option><option>Job</option><option>Internship</option><option>Hiring challenge</option></select>
+    <button class="wa" id="roundup">📣 Weekly roundup</button>
+    <button class="wa" id="sroundup">🎓 Student roundup</button>
+    <button class="sc" id="jcar">🖼 Jobs carousel</button>
+    <button class="sc" id="scar">🖼 Student carousel</button></div>
+  <div class="legend">🟢 Guaranteed test = everyone who registers gets the exam · 🟡 Test after screening / official page changed · ⚪ Fresher opening</div>
+  <div id="list"></div>
+</div></main>
+<div id="toast"></div>
+<div id="imodal" style="position:fixed;inset:0;background:#000c;display:none;z-index:25;overflow:auto;padding:16px">
+ <div style="max-width:1100px;margin:0 auto;background:var(--card);border-radius:16px;padding:16px">
+  <div class="row"><h3 id="ititle" style="margin:0;font:800 18px Montserrat,sans-serif">🖼 Images</h3><button class="gh" id="iclose">Close</button></div>
+  <p id="idesc" style="font-size:13px;color:var(--muted)"></p>
+  <div id="igrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px"></div>
+ </div></div>
+<div id="modal"><div class="box">
+  <h3>📲 WhatsApp channel post</h3>
+  <p>Edit if you like, then Copy and paste it into your channel. Facts come from the posting; open the official page once before posting.</p>
+  <div id="chrow"><input id="chlink" placeholder="Paste your channel link: https://whatsapp.com/channel/..."><button class="cp" id="chsave">Save link</button></div>
+  <textarea id="watext"></textarea>
+  <div class="mrow"><button class="wa" id="wacopy">📋 Copy message</button>
+  <button class="cp" id="walang">తెలుగు version</button>
+  <a class="go" id="waopen" target="_blank" rel="noopener">Open in WhatsApp ↗</a>
+  <button class="gh" id="waclose">Close</button></div>
+</div></div>
+<script>
+// ---- cloud mode (GitHub Pages): same buttons, answered from the pre-built data.json; marks saved on this phone ----
+if(window.STATIC){
+ const LS="radar_marks";let D=null;const marks=()=>{try{return JSON.parse(localStorage.getItem(LS)||"{}")}catch(e){return {}}};
+ const J=(o)=>new Response(JSON.stringify(o),{headers:{"Content-Type":"application/json"}});
+ const data=async()=>D||(D=await (await window._fetch("data.json?t="+Date.now())).json());
+ window._fetch=window.fetch.bind(window);
+ window.fetch=async(u,o={})=>{u=String(u);if(!u.startsWith("/api/"))return window._fetch(u,o);const d=await data(),b=o.body?JSON.parse(o.body):{};
+  if(u.startsWith("/api/jobs")){const m=marks();return J({jobs:d.jobs.map(j=>Object.assign({},j,m[j.id]||{})),state:Object.assign({},d.state,{running:false})})}
+  if(u.startsWith("/api/state"))return J(Object.assign({},d.state,{running:false}));
+  if(u.startsWith("/api/config"))return J(d.config);
+  if(u.startsWith("/api/roundup"))return J({text:u.includes("student")?d.student_roundup:d.roundup});
+  if(u.startsWith("/api/carousel"))return J({images:d.carousels[u.includes("student")?"student":"jobs"],folder:"cloud (long-press an image → Save)"});
+  if(u.startsWith("/api/image")){const im=d.images[b.id];return im?J({images:im,folder:"cloud (long-press an image → Save)"}):new Response(JSON.stringify({error:"Images are pre-made for the top jobs only. Open Job Radar on the laptop for this one."}),{status:404})}
+  if(u.startsWith("/api/script")){const s=d.scripts[b.id];return s?J({text:s,path:"cloud copy"}):new Response(JSON.stringify({error:"Scripts are pre-made for the top jobs only. Use the laptop for this one."}),{status:404})}
+  if(u.startsWith("/api/check")){const j=d.jobs.find(x=>x.id==b.id)||{},q=encodeURIComponent(j.company||j.title||"");
+   return J(j.check||{level:j.trust,flags:j.flags||[],good:j.trust_why||[],linkedin:"https://www.linkedin.com/search/results/companies/?keywords="+q,reviews:"https://www.google.com/search?q="+q+"+reviews+ambitionbox+glassdoor",google:"https://www.google.com/search?q="+q+"+company+official+website"})}
+  if(u.startsWith("/api/mark")){const m=marks();m[b.id]=Object.assign(m[b.id]||{},b);delete m[b.id].id;localStorage.setItem(LS,JSON.stringify(m));return J({ok:true})}
+  if(u.startsWith("/api/run")){window.open(d.run_url,"_blank");return J({started:false})}
+  return new Response("{}",{status:404})};
+}
+let JOBS=[],STATE={},TAB="t1",POLL=null;
+const $=s=>document.querySelector(s);
+const fmt=d=>{if(!d)return"";const x=new Date(d);if(isNaN(x))return d;return x.toLocaleDateString("en-IN",{day:"numeric",month:"short",year:"numeric"})+(x.getHours()||x.getMinutes()?" "+x.toLocaleTimeString("en-IN",{hour:"numeric",minute:"2-digit"}):"")};
+const daysLeft=d=>{if(!d)return null;const x=new Date(d);if(isNaN(x))return null;return Math.ceil((x-new Date())/864e5)};
+const today=new Date().toLocaleDateString("en-CA");
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function toast(t){const e=$("#toast");e.textContent=t;e.style.display="block";clearTimeout(e._t);e._t=setTimeout(()=>e.style.display="none",2200)}
+async function load(){const r=await fetch("/api/jobs");const d=await r.json();JOBS=d.jobs;STATE=d.state||{};fillFilters();render()}
+function tabsDef(){const open=JOBS.filter(j=>j.open&&!j.hidden);return[
+ ["t1","🟢 Guaranteed test",open.filter(j=>j.tier==1&&!j.posted)],
+ ["trusted","🛡 Trusted jobs",open.filter(j=>j.trust=="good"&&j.source!="Official page"&&!j.govt&&!j.posted)],
+ ["govt","🏛 Govt & schemes",open.filter(j=>j.govt&&!j.posted)],
+ ["stsoon","🎓 Student deadlines",open.filter(j=>j.govt&&j.student&&j.deadline&&daysLeft(j.deadline)>=0&&!j.posted).sort((a,b)=>daysLeft(a.deadline)-daysLeft(b.deadline))],
+ ["t2","🟡 Test mentioned",open.filter(j=>j.tier==2&&j.source!="News"&&!j.govt&&!j.posted)],
+ ["news","📰 Drive news",open.filter(j=>(j.source=="News"||j.source=="Official page")&&!j.govt)],
+ ["soon","⏰ Closing in 48h",open.filter(j=>{const d=daysLeft(j.deadline);return d!==null&&d>=0&&d<=2&&!j.posted})],
+ ["new","🆕 New today",open.filter(j=>(j.first_seen||"").slice(0,10)==today&&!j.posted)],
+ ["all","All open",open.filter(j=>!j.posted)],
+ ["posted","✅ Posted",JOBS.filter(j=>j.posted)],
+ ["closed","Closed / hidden",JOBS.filter(j=>!j.open||j.hidden)]]}
+function render(){
+ const c=STATE.counts||{},lr=STATE.last_run?fmt(STATE.last_run):"never";
+ $("#stats").innerHTML=`<div class="stat"><b>${c.tier1??0}</b>guaranteed-test</div><div class="stat"><b>${c.new_today??0}</b>new today</div><div class="stat"><b>${c.open??0}</b>open</div><div class="stat">Last search: ${esc(lr)}</div>`;
+ $("#run").disabled=!!STATE.running;$("#run").textContent=STATE.running?"⏳ Searching…":"🔍 Search now";
+ $("#progress").textContent=STATE.running?(STATE.progress||""):(window.STATIC?"☁️ Cloud version: updates every morning at 9:00 IST. Images/scripts ready for the top items; full tools on the laptop. ":"")+"Every fact comes from the official page: open it before posting.";
+ const T=tabsDef();$("#tabs").innerHTML=T.map(([k,n,a])=>`<button class="tab ${TAB==k?"on":""}" data-t="${k}">${n}<small>${a.length}</small></button>`).join("");
+ document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>{TAB=b.dataset.t;render()});
+ const q=$("#q").value.toLowerCase().trim();
+ let list=(T.find(t=>t[0]==TAB)||T[0])[2];
+ if(q)list=list.filter(j=>[j.company,j.title,j.location,(j.batch||[]).join(" "),j.kind,j.source].join(" ").toLowerCase().includes(q));
+ const fc=$("#fcat").value,fb=$("#fbatch").value,fy=$("#fcity").value,fk=$("#fkind").value;
+ if(fc)list=list.filter(j=>j.category==fc);if(fb)list=list.filter(j=>(j.batch||[]).includes(fb));
+ if(fy)list=list.filter(j=>(j.cities||[]).includes(fy));if(fk)list=list.filter(j=>j.kind==fk);
+ const ft=$("#ftrust").value;if(ft=="good")list=list.filter(j=>j.trust=="good");if(ft=="nored")list=list.filter(j=>j.trust!="red");
+ const fs=$("#fsort").value,dl=j=>{const d=daysLeft(j.deadline);return d===null||d<0?9999:d};
+ list=[...list].sort(fs=="trust"?(a,b)=>(b.trust_score??50)-(a.trust_score??50):fs=="deadline"?(a,b)=>dl(a)-dl(b):fs=="reg"?(a,b)=>(b.registered||0)-(a.registered||0):fs=="new"?(a,b)=>(b.first_seen||"").localeCompare(a.first_seen||""):(a,b)=>(b.score||0)-(a.score||0));
+ list.forEach((j,i)=>j._rank=i+1);
+ $("#list").innerHTML=list.length?list.map(card).join(""):`<div class="empty">${TAB=="t1"?"No guaranteed-test jobs open right now.<br>Hiring challenges come in waves: the radar checks every morning.":"Nothing here yet."}<br><br>Press <b>Search now</b> to check again.</div>`;
+ document.querySelectorAll("[data-act]").forEach(b=>b.onclick=()=>act(b.dataset.act,b.dataset.id));
+}
+function card(j){
+ const dl=daysLeft(j.deadline),isNew=(j.first_seen||"").slice(0,10)==today;
+ const b=[];
+ if(j.govt&&j.student)b.push(`<span class="b g">${esc(j.student)}</span>`);
+ if(j.govt)b.push(`<span class="b n">${j.kind=="Govt job"?"🏛 GOVT JOB":j.kind=="Exam date"?"📅 EXAM DATE":"🎁 SCHEME"} · ${esc(j.location)}</span>`,`<span class="b r">📰 from ${esc(j.outlet||"news")}: verify on official site</span>`);
+ else if(j.source=="News")b.push(`<span class="b r">📰 NEWS LEAD: find official link first</span>`);
+ else if(j.tier==1)b.push(`<span class="b g">✅ GUARANTEED TEST</span>`);else if(j.tier==2)b.push(`<span class="b y">📝 ${j.source=="Official page"?"PAGE UPDATED":"TEST IN PROCESS"}</span>`);
+ b.push(`<span class="b">${esc(j.kind)}</span>`,`<span class="b">${esc(j.source)}</span>`);
+ if(isNew)b.push(`<span class="b n">NEW</span>`);
+ if(dl!==null)b.push(`<span class="b ${dl<=3?"r":dl<=7?"y":""}">⏰ ${dl<0?"closed":dl==0?"last day today":dl+" days left"}</span>`);
+ if(j.registered>50)b.push(`<span class="b">👥 ${j.registered.toLocaleString("en-IN")} registered</span>`);
+ if(j.category)b.push(`<span class="b">${j.category=="IT"?"💻 IT":"🗂 Non-IT"}</span>`);
+ const tests=(j.tests||[]).map(t=>`${esc(t.label)}${t.start?": "+fmt(t.start)+(t.end?" → "+fmt(t.end):""):""}`).join("<br>");
+ const g=[];
+ if(tests)g.push(`<div><b>Test / exam</b>${tests}</div>`);
+ if(j.duration)g.push(`<div><b>Duration</b>${esc(j.duration)}</div>`);
+ if((j.pattern||[]).length)g.push(`<div><b>Pattern (from posting)</b>${esc(j.pattern.join(" · "))}</div>`);
+ if((j.batch||[]).length)g.push(`<div><b>Batch</b>${esc(j.batch.join(", "))}</div>`);
+ if(j.deadline)g.push(`<div><b>Apply by</b>${fmt(j.deadline)}</div>`);
+ if(j.pay)g.push(`<div><b>Pay (as posted)</b>${esc(j.pay)}</div>`);
+ if(j.location)g.push(`<div><b>Location</b>${esc(j.location)}</div>`);
+ if((j.rounds||[]).length)g.push(`<div><b>Process</b>${esc(j.rounds.join(" → "))}</div>`);
+ return `<div class="card t${j.tier} ${j.posted?"posted":""}">
+  <div class="row"><div style="display:flex;gap:12px;align-items:flex-start"><div class="rank">#${j._rank||""}</div>
+   <div><div class="co">${esc(j.company||"—")}</div><div class="role">${esc(j.title)}</div></div></div>
+   <div class="tpill ${j.trust||"check"}" title="${esc((j.trust_why||[]).join("\n")||"Base 50: no strong signals yet. Click Company check.")}">
+    ${j.trust=="good"?"🛡 TRUSTED":j.trust=="red"?"🚩 RISKY":"🔎 NOT VERIFIED"}<b>${j.trust_score??50}<small>/100</small></b></div></div>
+  <div class="badges">${b.join("")}</div><div class="why">${esc(j.why)}</div>
+  <div class="grid">${g.join("")}</div>
+  ${(j.flags||[]).length?`<div class="trust">🚩 <b>Warning:</b> ${esc(j.flags.join("; "))}</div>`:""}
+  ${j.check?trustBox(j.check):""}
+  <details><summary>Why trust ${j.trust_score??50}/100 · rank #${j._rank||""}</summary><p>Starts at 50.<br>${esc((j.trust_why||[]).join(" · ")||"No strong signals yet")}.<br>Click <b>Company check</b> to add website age + LinkedIn / reviews links.<br>Rank = guaranteed test first, then test date / deadline soon, trust, registrations, new today.</p></details>
+  ${j.summary?`<details><summary>Posting text</summary><p>${esc(j.summary)}…</p></details>`:""}
+  <div class="acts">${j.govt?`<a class="go" href="${esc((j.official||{}).url||"#")}" target="_blank" rel="noopener">🏛 ${esc((j.official||{}).name||"Official site")} ↗</a><a class="gh" href="${esc(j.apply_url)}" target="_blank" rel="noopener">📰 News ↗</a>`:`<a class="go" href="${esc(j.apply_url)}" target="_blank" rel="noopener">Open official page ↗</a>`}
+  <button class="ck" data-act="check" data-id="${esc(j.id)}">🔍 Company check</button>
+  <button class="sc" data-act="script" data-id="${esc(j.id)}">🎬 Reel script</button>
+  <button class="wa" data-act="wa" data-id="${esc(j.id)}">🟢 WhatsApp post</button>
+  <button class="sc" data-act="img" data-id="${esc(j.id)}">🖼 Post image</button>
+  <button class="cp" data-act="copy" data-id="${esc(j.id)}">📋 Copy reel facts</button>
+  <button class="gh" data-act="${j.posted?"unpost":"post"}" data-id="${esc(j.id)}">${j.posted?"Undo posted":"✅ Mark posted"}</button>
+  <button class="gh" data-act="${j.hidden?"unhide":"hide"}" data-id="${esc(j.id)}">${j.hidden?"Unhide":"Hide"}</button></div></div>`}
+function facts(j){
+ const L=[`${j.company} – ${j.title}`];
+ if(j.tier==1)L.push("✅ Apply → test link for everyone (no shortlist)");
+ (j.tests||[]).forEach(t=>L.push(`📝 ${t.label}${t.start?": "+fmt(t.start)+(t.end?" – "+fmt(t.end):""):""}`));
+ if(j.duration)L.push(`⏱ ${j.duration}`);if((j.pattern||[]).length)L.push(`📚 ${j.pattern.join(" · ")}`);
+ if((j.batch||[]).length)L.push(`🎓 Batch: ${j.batch.join(", ")}`);if(j.pay)L.push(`💰 ${j.pay}`);
+ if(j.location)L.push(`📍 ${j.location}`);if(j.deadline)L.push(`⏰ Apply by ${fmt(j.deadline)}`);
+ L.push(``,`Source: ${j.source_url} (checked ${new Date().toLocaleDateString("en-IN")}): re-check before posting`);
+ return L.join("\n")}
+let CFG={whatsapp_channel:"",instagram:"@sreekar_polepalli"},WAJOB=null;
+const dshort=d=>{const x=new Date(d);return isNaN(x)?d:x.toLocaleDateString("en-IN",{day:"numeric",month:"short"})};
+function waMsg(j){
+ const L=[],dl=daysLeft(j.deadline);
+ if(j.govt){L.push({"Govt job":"🏛 *GOVT JOB ALERT* 🚨","Exam date":"📅 *EXAM DATE UPDATE* 📅","Scheme":"🎁 *NEW SCHEME UPDATE* 🎁"}[j.kind]||"📢 *UPDATE*","",
+  `📍 *${j.location}*`,`📰 ${j.title}`);
+  (j.tests||[]).filter(t=>t.start).forEach(t=>L.push(`📅 *Date:* ${dshort(t.start)}${t.end?" – "+dshort(t.end):""}`));
+  if(dl!==null&&dl>=0)L.push("",`⏰ *Last date: ${dshort(j.deadline)}*${dl==0?" (TODAY!)":dl<=10?` (only ${dl} day${dl>1?"s":""} left!)`:""}`);
+  L.push("",(j.official&&j.official.name!="Find official site")?"👉 *Official website:*":"👉 *Read more:*",offUrl(j),"","✅ Always confirm on the official website before applying","","━━━━━━━━━━━━━━","📢 *Daily jobs, exams & schemes for AP & TS students*");
+  if(CFG.whatsapp_channel)L.push("Join our WhatsApp channel 👇",CFG.whatsapp_channel);if(CFG.instagram)L.push(`📸 Instagram: ${CFG.instagram}`);
+  L.push("","🙌 Forward this to your friends!");return L.join("\n")}
+ if(j.tier==1)L.push("🚨 *NO SHORTLIST: TEST FOR EVERYONE* 🚨","");
+ else if(dl!==null&&dl>=0&&dl<=3)L.push("⏰ *DEADLINE ALERT* ⏰","");
+ else L.push("🔥 *NEW JOB UPDATE* 🔥","");
+ L.push(`🏢 *${j.company||"Company"}* is hiring!`,`💼 *Role:* ${j.title}`);
+ if(j.kind=="Internship")L.push("🎓 *Type:* Internship");
+ if((j.batch||[]).length)L.push(`🎓 *Batch:* ${j.batch.join(", ")}`);
+ if(j.tier==1)L.push("","✅ Apply → you get the *test link directly*","✅ No resume shortlisting");
+ const t=(j.tests||[]).filter(t=>t.start);
+ if(t.length){L.push("");t.slice(0,2).forEach(x=>L.push(`📝 *${x.label}:* ${dshort(x.start)}${x.end&&dshort(x.end)!=dshort(x.start)?" – "+dshort(x.end):""}`))}
+ if(j.duration)L.push(`⏱ *Duration:* ${j.duration}`);
+ if((j.pattern||[]).length)L.push(`📚 *Pattern:* ${j.pattern.join(" · ")}`);
+ if(j.pay)L.push(`💰 *Pay:* ${j.pay}`);
+ if(j.location)L.push(`📍 *Location:* ${j.location}`);
+ if(j.deadline&&dl!==null&&dl>=0)L.push("",`⏰ *Last date: ${dshort(j.deadline)}*${dl==0?" (TODAY!)":dl<=7?` (only ${dl} day${dl>1?"s":""} left!)`:""}`);
+ L.push("","👉 *Apply here:*",j.apply_url,"");
+ L.push("━━━━━━━━━━━━━━");
+ L.push("📢 *Daily job updates for freshers*");
+ if(CFG.whatsapp_channel)L.push("Join our WhatsApp channel 👇",CFG.whatsapp_channel);
+ if(CFG.instagram)L.push(`📸 Instagram: ${CFG.instagram}`);
+ L.push("","🙌 Forward this to a friend who needs a job!");
+ return L.join("\n")}
+function trustBox(c){const L={good:"🛡 Looks genuine",check:"🔎 Check carefully",red:"🚩 Red flags"}[c.level]||"";
+ const items=[...(c.good||[]).map(x=>"✅ "+esc(x)),...(c.flags||[]).map(x=>"⚠️ "+esc(x)),...(c.notes||[]).map(x=>"ℹ️ "+esc(x))];
+ return `<div class="trust"><b>${L}</b><br>${items.join("<br>")}<br><a href="${esc(c.linkedin)}" target="_blank" rel="noopener">LinkedIn: employees &amp; followers ↗</a><a href="${esc(c.reviews)}" target="_blank" rel="noopener">Reviews ↗</a><a href="${esc(c.google)}" target="_blank" rel="noopener">Official site ↗</a></div>`}
+function showText(title,desc,text,wa){$("#walang").style.display="none";WAJOB=null;$("#modal h3").textContent=title;$("#modal p").textContent=desc;$("#chrow").style.display="none";
+ $("#watext").value=text;$("#waopen").style.display=wa?"":"none";$("#waopen").href="https://wa.me/?text="+encodeURIComponent(text);$("#modal").style.display="flex"}
+function fillFilters(){const opts=(sel,vals)=>{const cur=sel.value;sel.innerHTML=sel.options[0].outerHTML+vals.map(v=>`<option>${esc(v)}</option>`).join("");sel.value=cur};
+ const open=JOBS.filter(j=>j.open);opts($("#fbatch"),[...new Set(open.flatMap(j=>j.batch||[]))].sort());
+ opts($("#fcity"),[...new Set(open.flatMap(j=>j.cities||[]))].sort((a,b)=>a=="Other"?1:b=="Other"?-1:a.localeCompare(b)))}
+["#fcat","#fbatch","#fcity","#fkind","#ftrust","#fsort"].forEach(s=>$(s).onchange=render);
+function showImgs(title,d){$("#ititle").textContent=title;$("#idesc").textContent=`Saved in ${d.folder}. Tap an image to open it full size; on phone, long-press → Save image.`;
+ const t=Date.now();$("#igrid").innerHTML=d.images.map((u,i)=>`<div><a href="${u}?t=${t}" target="_blank"><img src="${u}?t=${t}" style="width:100%;border-radius:10px;border:1px solid var(--line)"></a>
+ <a class="go" style="display:block;text-align:center;margin-top:6px;padding:8px;border-radius:9px;text-decoration:none;font:600 13px Poppins" href="${u}" download>⬇ Download ${i+1}</a></div>`).join("");$("#imodal").style.display="block"}
+$("#iclose").onclick=()=>$("#imodal").style.display="none";
+$("#jcar").onclick=async()=>{toast("Making jobs carousel…");showImgs("🖼 Jobs carousel (Instagram, 4:5)",await (await fetch("/api/carousel?type=jobs")).json())};
+$("#scar").onclick=async()=>{toast("Making student carousel…");showImgs("🖼 Student carousel (Instagram, 4:5)",await (await fetch("/api/carousel?type=student")).json())};
+$("#sroundup").onclick=async()=>{const d=await (await fetch("/api/roundup?type=student")).json();showText("🎓 Student roundup (AP & TS)","Scholarships, student benefits, last dates, exams and govt jobs, with official links. Edit, copy, paste in your channel.",d.text,true)};
+$("#roundup").onclick=async()=>{const d=await (await fetch("/api/roundup")).json();showText("📣 Weekly roundup","Top open jobs (guaranteed-test first, no red flags). Edit, copy, paste in your channel.",d.text,true)};
+let LANG="en";
+const offUrl=j=>(j.official&&j.official.name!="Find official site")?j.official.url:j.apply_url;
+function waTe(j){
+ const L=[],dl=daysLeft(j.deadline),ch=CFG.whatsapp_channel,te=j.kind=="Scheme"?"scheme":"update";
+ const off=offUrl(j);
+ if(j.govt){
+  L.push({"Govt job":"🏛 *Govt Job Alert* 🚨","Exam date":"📅 *Exam Update* 📅","Scheme":"🎁 *Students కి Important Update* 🎁"}[j.kind]||"📢 *Update*","");
+  L.push(`📍 *${j.location}* students కి`,`📰 ${j.title}`);
+  (j.tests||[]).filter(t=>t.start).forEach(t=>L.push(`📅 Date: *${dshort(t.start)}*${t.end?" – "+dshort(t.end):""}`));
+  if(dl!==null&&dl>=0)L.push("",`⏰ Last date: *${dshort(j.deadline)}* ${dl==0?"(ఈ రోజే!)":`(ఇంకా ${dl} రోజులు మాత్రమే!)`}`);
+  L.push("",`👉 Official website లో details check చేసి apply చేయండి:`,off);
+ }else{
+  L.push(j.tier==1?"🚨 *Shortlist లేదు: అందరికీ Test link!* 🚨":"🔥 *కొత్త Job Update* 🔥","",`🏢 *${j.company}* లో hiring!`,`💼 Role: *${j.title}*`);
+  if((j.batch||[]).length)L.push(`🎓 ${j.batch.join(", ")} batch వాళ్ళు eligible`);
+  if(j.tier==1)L.push("✅ Apply చేసిన వెంటనే test link వస్తుంది");
+  (j.tests||[]).filter(t=>t.start).slice(0,1).forEach(t=>L.push(`📝 Test: *${dshort(t.start)}*${t.end?" – "+dshort(t.end):""}`));
+  if(j.pay)L.push(`💰 Pay: ${j.pay}`);if(j.location)L.push(`📍 ${j.location}`);
+  if(dl!==null&&dl>=0)L.push("",`⏰ Last date: *${dshort(j.deadline)}* ${dl==0?"(ఈ రోజే!)":dl<=7?`(ఇంకా ${dl} రోజులు మాత్రమే!)`:""}`);
+  L.push("","👉 Apply link:",j.apply_url);
+ }
+ L.push("","━━━━━━━━━━━━━━","📢 *AP & TS students కోసం daily updates*");
+ if(ch)L.push("మన WhatsApp channel join అవ్వండి 👇",ch);if(CFG.instagram)L.push(`📸 Instagram: ${CFG.instagram}`);
+ L.push("","🙌 మీ friends కి forward చేయండి!");return L.join("\n")}
+$("#walang").onclick=()=>{if(!WAJOB)return;LANG=LANG=="en"?"te":"en";$("#watext").value=LANG=="te"?waTe(WAJOB):waMsg(WAJOB);
+ $("#walang").textContent=LANG=="te"?"English version":"తెలుగు version";$("#waopen").href="https://wa.me/?text="+encodeURIComponent($("#watext").value)};
+function openWa(j){WAJOB=j;LANG="en";$("#walang").style.display="";$("#walang").textContent="తెలుగు version";$("#modal h3").textContent="📲 WhatsApp channel post";$("#modal p").textContent="Edit if you like, then Copy and paste it into your channel. Facts come from the posting; open the official page once before posting.";$("#waopen").style.display="";$("#chlink").value=CFG.whatsapp_channel||"";$("#chrow").style.display=CFG.whatsapp_channel?"none":"flex";
+ $("#watext").value=waMsg(j);$("#waopen").href="https://wa.me/?text="+encodeURIComponent($("#watext").value);$("#modal").style.display="flex"}
+$("#watext").oninput=()=>$("#waopen").href="https://wa.me/?text="+encodeURIComponent($("#watext").value);
+$("#waclose").onclick=()=>$("#modal").style.display="none";
+$("#modal").onclick=e=>{if(e.target.id=="modal")$("#modal").style.display="none"};
+$("#chsave").onclick=async()=>{const v=$("#chlink").value.trim();const r=await fetch("/api/config",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({whatsapp_channel:v})});
+ if(!r.ok){toast((await r.json()).error||"Not saved");return}CFG.whatsapp_channel=v;toast("Channel link saved");openWa(WAJOB)};
+$("#wacopy").onclick=async()=>{const t=$("#watext").value;try{await navigator.clipboard.writeText(t)}catch(e){$("#watext").select();document.execCommand("copy")}toast("Copied: paste it in your WhatsApp channel")};
+fetch("/api/config").then(r=>r.json()).then(c=>CFG=c).catch(()=>{});
+async function act(a,id){const j=JOBS.find(x=>x.id==id);if(!j)return;
+ if(a=="wa")return openWa(j);
+ if(a=="img"){toast("Making images…");const r=await fetch("/api/image",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({id})});
+  return showImgs("🖼 Post images: feed 4:5 + story 9:16",await r.json())}
+ if(a=="check"){toast("Checking company…");const c=await (await fetch("/api/check",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({id})})).json();j.check=c;render();return toast("Company check done")}
+ if(a=="script"){toast("Writing reel script…");const r=await fetch("/api/script",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({id})});const d=await r.json();
+  if(!r.ok)return toast(d.error||"Failed");return showText("🎬 Reel script",`Saved to ${d.path}. Record it in your own words, drop it in reels\\inbox and ask me to edit.`,d.text,false)}
+ if(a=="copy"){const t=facts(j);try{await navigator.clipboard.writeText(t)}catch(e){const x=document.createElement("textarea");x.value=t;x.style.position="fixed";x.style.opacity="0";document.body.appendChild(x);x.select();document.execCommand("copy");x.remove()}return toast("Reel facts copied")}
+ const body={id};if(a=="post")body.posted=true;if(a=="unpost")body.posted=false;if(a=="hide")body.hidden=true;if(a=="unhide")body.hidden=false;
+ await fetch("/api/mark",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
+ Object.assign(j,body);render();toast(a=="post"?"Marked as posted":"Saved")}
+$("#q").oninput=render;
+$("#run").onclick=async()=>{if(window.STATIC){await fetch("/api/run",{method:"POST",body:"{}"});return toast("On GitHub: tap “Run workflow”. The page updates in ~5 min.")}
+ await fetch("/api/run",{method:"POST",body:"{}"});STATE.running=true;render();startPoll()};
+function startPoll(){clearInterval(POLL);POLL=setInterval(async()=>{const s=await (await fetch("/api/state")).json();STATE=s;render();if(!s.running){clearInterval(POLL);load();toast("Search finished")}},1500)}
+load().then(()=>{if(STATE.running)startPoll()});
+</script>
+</body>
+</html>

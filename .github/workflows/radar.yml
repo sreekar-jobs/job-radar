@@ -1,0 +1,43 @@
+name: Job Radar daily search
+
+on:
+  schedule:
+    - cron: "30 3 * * *"   # 09:00 IST every day
+  workflow_dispatch: {}      # "Run workflow" button = Search now from the phone
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: radar
+  cancel-in-progress: false
+
+jobs:
+  search:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install requests pillow
+      - name: Search all sources
+        run: python tools/job_radar.py fetch || true
+      - name: Build the phone page
+        run: python tools/job_radar_static.py --out site
+      - name: Keep job history (first seen / closed) for tomorrow
+        run: |
+          git config user.name "job-radar-bot"
+          git config user.email "job-radar-bot@users.noreply.github.com"
+          git add reels/job_radar/jobs.json reels/job_radar/state.json reels/job_radar/radar.log || true
+          git commit -m "radar data $(date -u +%F)" || echo "no changes"
+          git push || echo "push skipped"
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+      - id: deploy
+        uses: actions/deploy-pages@v4
