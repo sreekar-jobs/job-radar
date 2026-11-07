@@ -19,7 +19,8 @@ ROOT = Path(__file__).resolve().parent.parent
 CLOUD = Path(r"C:\Users\nikhi\job-radar-cloud")
 GH = r"C:\Program Files\GitHub CLI\gh.exe"
 REPO = "sreekar-jobs/job-radar"
-FILES = [f"tools/{n}" for n in ("job_radar.py", "job_radar_page.html", "job_radar_cards.py", "job_radar_static.py")]
+FILES = [f"tools/{n}" for n in ("job_radar.py", "job_radar_page.html", "job_radar_cards.py", "job_radar_static.py",
+                                "job_radar_feeds.json")]
 FILES += [p.relative_to(ROOT).as_posix() for p in (ROOT / "assets" / "fonts").glob("*")] + \
     ["assets/brand/profile.jpg", "assets/brand/radar_icon.png", "tools/job_radar_publish.py"]
 

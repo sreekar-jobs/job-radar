@@ -375,30 +375,102 @@ COMPANY_FEEDS = [  # verified 2026-11-07: public official feeds with India roles
     ("gh", "coinbase", "Coinbase"), ("lv", "cred", "CRED"), ("gh", "commvault", "Commvault"), ("gh", "druva", "Druva"),
     ("gh", "airbnb", "Airbnb"), ("gh", "groww", "Groww"), ("gh", "figma", "Figma"),
 ]
-INDIA = r"india|bengaluru|bangalore|hyderabad|pune|chennai|mumbai|gurugram|gurgaon|noida|delhi|kolkata|ahmedabad|remote - in"
+INDIA = r"\bindia\b|bengaluru|bangalore|hyderabad|pune|chennai|mumbai|gurugram|gurgaon|noida|delhi|kolkata|ahmedabad|kochi|coimbatore|trivandrum|visakhapatnam|vizag|jaipur|remote - in"
 ENTRY = r"intern|graduate|fresher|trainee|apprentice|new grad|university|campus|entry[- ]level|junior|\bjr\b|associate|" \
         r"engineer i\b|engineer 1\b|sde ?(i|1)\b|swe ?(i|1)\b|analyst\b|early career"
 NOT_ENTRY = r"senior|\bsr\.?\b|lead\b|manager|staff|principal|director|head\b|architect|\bii\b|\biii\b|\biv\b|\b[2-9]\+? ?years|" \
             r"specialist ii|vp\b|counsel"
 
 
+FEEDS_FILE = Path(__file__).resolve().parent / "job_radar_feeds.json"
+WD_TERMS = ["intern", "trainee", "graduate", "fresher", "associate", "analyst", "junior", "apprentice"]
+
+
+def feed_rows(f):
+    """(title, location, url, id) rows from one official job feed."""
+    ats, name = f["ats"], f["name"]
+    if ats == "gh":
+        r = get(f"https://boards-api.greenhouse.io/v1/boards/{f['slug']}/jobs")
+        return [(j.get("title", ""), (j.get("location") or {}).get("name", ""), j.get("absolute_url"), j.get("id"))
+                for j in (r.json().get("jobs", []) if r is not None and r.ok else [])]
+    if ats == "lv":
+        r = get(f"https://api.lever.co/v0/postings/{f['slug']}?mode=json")
+        return [(j.get("text", ""), str((j.get("categories") or {}).get("location", "")), j.get("hostedUrl"), j.get("id"))
+                for j in (r.json() if r is not None and r.ok else [])]
+    if ats == "ab":
+        r = get(f"https://api.ashbyhq.com/posting-api/job-board/{f['slug']}")
+        return [(j.get("title", ""), (j.get("location") or "") + " " + " ".join(x.get("location", "") for x in j.get("secondaryLocations") or []),
+                 j.get("jobUrl"), j.get("id")) for j in (r.json().get("jobs", []) if r is not None and r.ok else [])]
+    if ats == "sr":
+        rows, off = [], 0
+        while off < 1000:
+            r = get(f"https://api.smartrecruiters.com/v1/companies/{f['slug']}/postings?country=in&limit=100&offset={off}")
+            if r is None or not r.ok:
+                break
+            d = r.json()
+            for j in d.get("content", []):
+                loc = j.get("location") or {}
+                rows.append((j.get("name", ""), f"{loc.get('city', '')}, India",
+                             f"https://jobs.smartrecruiters.com/{f['slug']}/{j.get('id')}", j.get("id")))
+            off += 100
+            if off >= d.get("totalFound", 0):
+                break
+            time.sleep(0.3)
+        return rows
+    if ats == "wd":  # Workday: search entry-level words, India in the location text
+        base = f"https://{f['tenant']}.{f['wd']}.myworkdayjobs.com"
+        api = f"{base}/wday/cxs/{f['tenant']}/{f['site']}/jobs"
+        rows, seen, facets = [], set(), {}
+        try:  # find Workday's own "country = India" filter, so results are India-only even when location text is empty
+            r0 = requests.post(api, headers={**UA, "Content-Type": "application/json"},
+                               json={"limit": 1, "offset": 0, "searchText": "", "appliedFacets": {}}, timeout=30)
+            groups = []
+            for fac in (r0.json().get("facets", []) if r0.ok else []):
+                groups.append((fac.get("facetParameter"), fac.get("values", [])))
+                for g in fac.get("values", []):  # nested: Location -> Country -> India
+                    if g.get("values"):
+                        groups.append((g.get("facetParameter"), g["values"]))
+            for param, vals in groups:
+                hit = next((v for v in vals if (v.get("descriptor") or "").strip().lower() == "india" and v.get("id")), None)
+                if hit and param and "country" in param.lower():
+                    facets = {param: [hit["id"]]}
+                    break
+        except Exception:
+            pass
+        for term in WD_TERMS:
+            for off in (0, 20):
+                try:
+                    r = requests.post(f"{base}/wday/cxs/{f['tenant']}/{f['site']}/jobs", headers={**UA, "Content-Type": "application/json"},
+                                      json={"limit": 20, "offset": off, "searchText": term if facets else f"{term} India",
+                                            "appliedFacets": facets}, timeout=30)
+                    posts = r.json().get("jobPostings", []) if r.ok else []
+                except Exception:
+                    posts = []
+                for p in posts:
+                    path = p.get("externalPath", "")
+                    if path and path not in seen:
+                        seen.add(path)
+                        rows.append((p.get("title", ""), (p.get("locationsText") or "") + (" India" if facets else ""), f"{base}/{f['site']}{path}",
+                                     path.rsplit("_", 1)[-1]))
+                if len(posts) < 20:
+                    break
+                time.sleep(0.3)
+        return rows
+    return []
+
+
 def fetch_company_feeds(cfg):
-    feeds = COMPANY_FEEDS + [tuple(x) for x in cfg.get("company_feeds", [])]
+    feeds = load(FEEDS_FILE, {}).get("feeds") or [{"ats": a, "slug": s, "name": n} for a, s, n in COMPANY_FEEDS]
+    feeds += [x if isinstance(x, dict) else {"ats": x[0], "slug": x[1], "name": x[2]} for x in cfg.get("company_feeds", [])]
     jobs = []
-    for ats, slug, name in feeds:
+    for f in feeds:
+        name, slug = f["name"], f.get("slug") or f.get("tenant")
         try:
-            if ats == "gh":
-                r = get(f"https://boards-api.greenhouse.io/v1/boards/{slug}/jobs")
-                rows = [(j.get("title", ""), (j.get("location") or {}).get("name", ""), j.get("absolute_url"), j.get("id"),
-                         j.get("updated_at")) for j in (r.json().get("jobs", []) if r is not None and r.ok else [])]
-            else:
-                r = get(f"https://api.lever.co/v0/postings/{slug}?mode=json")
-                rows = [(j.get("text", ""), (j.get("categories") or {}).get("location", ""), j.get("hostedUrl"), j.get("id"),
-                         None) for j in (r.json() if r is not None and r.ok else [])]
+            rows = feed_rows(f)
         except Exception as e:
             log(f"  feed {name} failed: {e}")
             continue
-        for title, loc, url, jid, upd in rows:
+        for title, loc, url, jid in rows:
             if not re.search(INDIA, loc or "", re.I) or not re.search(ENTRY, title, re.I) or re.search(NOT_ENTRY, title, re.I):
                 continue
             jobs.append({
@@ -408,9 +480,19 @@ def fetch_company_feeds(cfg):
                 "rounds": [], "batch": batches(title), "pay": "", "location": loc, "deadline": None, "registered": 0,
                 "apply_url": url, "source_url": url, "summary": f"{title}, {loc} (official {name} careers page)", "body": title,
             })
-        time.sleep(0.3)
-    log(f"Company feeds: {len(jobs)} entry-level India roles from {len(feeds)} official feeds")
-    return jobs
+        time.sleep(0.2)
+    merged = {}
+    for j in jobs:  # same role posted many times (one per team / requisition): one card with a count
+        k = (j["company"], j["title"].lower(), j["location"].lower())
+        if k in merged:
+            merged[k]["openings"] = merged[k].get("openings", 1) + 1
+        else:
+            merged[k] = j
+    for j in merged.values():
+        if j.get("openings", 1) > 1:
+            j["why"] += f" ({j['openings']} openings)"
+    log(f"Company feeds: {len(merged)} entry-level India roles ({len(jobs)} postings) from {len(feeds)} official feeds")
+    return list(merged.values())
 
 
 # ---------------------------------------------------------------- add by link (a job the user found anywhere)

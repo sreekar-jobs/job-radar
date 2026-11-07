@@ -1,0 +1,280 @@
+{
+ "verified": "2026-11-07",
+ "note": "Official public job feeds (Greenhouse gh, Lever lv, Ashby ab, SmartRecruiters sr, Workday wd) with India roles. Add more here.",
+ "feeds": [
+  {
+   "ats": "gh",
+   "slug": "adyen",
+   "name": "Adyen"
+  },
+  {
+   "ats": "gh",
+   "slug": "agoda",
+   "name": "Agoda"
+  },
+  {
+   "ats": "gh",
+   "slug": "airbnb",
+   "name": "Airbnb"
+  },
+  {
+   "ats": "gh",
+   "slug": "coinbase",
+   "name": "Coinbase"
+  },
+  {
+   "ats": "gh",
+   "slug": "commvault",
+   "name": "Commvault"
+  },
+  {
+   "ats": "gh",
+   "slug": "coursera",
+   "name": "Coursera"
+  },
+  {
+   "ats": "gh",
+   "slug": "databricks",
+   "name": "Databricks"
+  },
+  {
+   "ats": "gh",
+   "slug": "datadog",
+   "name": "Datadog"
+  },
+  {
+   "ats": "gh",
+   "slug": "druva",
+   "name": "Druva"
+  },
+  {
+   "ats": "gh",
+   "slug": "duolingo",
+   "name": "Duolingo"
+  },
+  {
+   "ats": "gh",
+   "slug": "elastic",
+   "name": "Elastic"
+  },
+  {
+   "ats": "gh",
+   "slug": "figma",
+   "name": "Figma"
+  },
+  {
+   "ats": "gh",
+   "slug": "fivetran",
+   "name": "Fivetran"
+  },
+  {
+   "ats": "gh",
+   "slug": "gitlab",
+   "name": "GitLab"
+  },
+  {
+   "ats": "gh",
+   "slug": "glance",
+   "name": "Glance"
+  },
+  {
+   "ats": "gh",
+   "slug": "groww",
+   "name": "Groww"
+  },
+  {
+   "ats": "gh",
+   "slug": "hackerrank",
+   "name": "HackerRank"
+  },
+  {
+   "ats": "gh",
+   "slug": "highradius",
+   "name": "HighRadius"
+  },
+  {
+   "ats": "gh",
+   "slug": "inmobi",
+   "name": "InMobi"
+  },
+  {
+   "ats": "gh",
+   "slug": "instacart",
+   "name": "Instacart"
+  },
+  {
+   "ats": "gh",
+   "slug": "mongodb",
+   "name": "MongoDB"
+  },
+  {
+   "ats": "gh",
+   "slug": "newrelic",
+   "name": "New Relic"
+  },
+  {
+   "ats": "gh",
+   "slug": "observeai",
+   "name": "Observe.AI"
+  },
+  {
+   "ats": "gh",
+   "slug": "okta",
+   "name": "Okta"
+  },
+  {
+   "ats": "gh",
+   "slug": "purestorage",
+   "name": "Pure Storage"
+  },
+  {
+   "ats": "gh",
+   "slug": "rubrik",
+   "name": "Rubrik"
+  },
+  {
+   "ats": "gh",
+   "slug": "samsara",
+   "name": "Samsara"
+  },
+  {
+   "ats": "gh",
+   "slug": "sigmoid",
+   "name": "Sigmoid"
+  },
+  {
+   "ats": "gh",
+   "slug": "stripe",
+   "name": "Stripe"
+  },
+  {
+   "ats": "gh",
+   "slug": "sumologic",
+   "name": "Sumo Logic"
+  },
+  {
+   "ats": "gh",
+   "slug": "thoughtworks",
+   "name": "Thoughtworks"
+  },
+  {
+   "ats": "gh",
+   "slug": "toast",
+   "name": "Toast"
+  },
+  {
+   "ats": "gh",
+   "slug": "twilio",
+   "name": "Twilio"
+  },
+  {
+   "ats": "gh",
+   "slug": "zscaler",
+   "name": "Zscaler"
+  },
+  {
+   "ats": "lv",
+   "slug": "cred",
+   "name": "CRED"
+  },
+  {
+   "ats": "lv",
+   "slug": "fampay",
+   "name": "FamPay"
+  },
+  {
+   "ats": "lv",
+   "slug": "hevodata",
+   "name": "Hevo Data"
+  },
+  {
+   "ats": "lv",
+   "slug": "meesho",
+   "name": "Meesho"
+  },
+  {
+   "ats": "lv",
+   "slug": "mindtickle",
+   "name": "Mindtickle"
+  },
+  {
+   "ats": "lv",
+   "slug": "paytm",
+   "name": "Paytm"
+  },
+  {
+   "ats": "lv",
+   "slug": "pocketfm",
+   "name": "Pocket FM"
+  },
+  {
+   "ats": "lv",
+   "slug": "zeta",
+   "name": "Zeta"
+  },
+  {
+   "ats": "ab",
+   "slug": "atlan",
+   "name": "Atlan"
+  },
+  {
+   "ats": "ab",
+   "slug": "sarvam",
+   "name": "Sarvam AI"
+  },
+  {
+   "ats": "ab",
+   "slug": "snowflake",
+   "name": "Snowflake"
+  },
+  {
+   "ats": "ab",
+   "slug": "tekion",
+   "name": "Tekion"
+  },
+  {
+   "ats": "sr",
+   "slug": "BoschGroup",
+   "name": "Bosch"
+  },
+  {
+   "ats": "sr",
+   "slug": "ServiceNow",
+   "name": "ServiceNow"
+  },
+  {
+   "ats": "sr",
+   "slug": "Sutherland",
+   "name": "Sutherland"
+  },
+  {
+   "ats": "sr",
+   "slug": "Experian",
+   "name": "Experian"
+  },
+  {
+   "ats": "sr",
+   "slug": "Freshworks",
+   "name": "Freshworks"
+  },
+  {
+   "ats": "sr",
+   "slug": "Continental",
+   "name": "Continental"
+  },
+  {
+   "ats": "wd",
+   "tenant": "salesforce",
+   "wd": "wd12",
+   "site": "External_Career_Site",
+   "name": "Salesforce"
+  },
+  {
+   "ats": "wd",
+   "tenant": "accenture",
+   "wd": "wd103",
+   "site": "AccentureCareers",
+   "name": "Accenture"
+  }
+ ]
+}
