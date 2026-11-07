@@ -74,7 +74,8 @@ details{margin-top:8px;font-size:13px;color:var(--muted)}summary{cursor:pointer}
 <header><div class="wrap">
   <div class="top">
     <h1>JOB <span>RADAR</span></h1>
-    <button id="run">🔍 Search now</button>
+    <div style="display:flex;gap:8px;flex-wrap:wrap"><button id="addlink" style="background:#fff;color:#0B1F3A">➕ Add by link</button>
+    <button id="run">🔍 Search now</button></div>
   </div>
   <div class="stats" id="stats"></div>
   <div id="progress"></div>
@@ -143,6 +144,7 @@ function toast(t){const e=$("#toast");e.textContent=t;e.style.display="block";cl
 async function load(){const r=await fetch("/api/jobs");const d=await r.json();JOBS=d.jobs;STATE=d.state||{};fillFilters();render()}
 function tabsDef(){const open=JOBS.filter(j=>j.open&&!j.hidden);return[
  ["t1","🟢 Guaranteed test",open.filter(j=>j.tier==1&&!j.posted)],
+ ["mine","📌 My picks",open.filter(j=>j.source=="Added by you"&&!j.posted)],
  ["trusted","🛡 Trusted jobs",open.filter(j=>j.trust=="good"&&j.source!="Official page"&&!j.govt&&!j.posted)],
  ["govt","🏛 Govt & schemes",open.filter(j=>j.govt&&!j.posted)],
  ["stsoon","🎓 Student deadlines",open.filter(j=>j.govt&&j.student&&j.deadline&&daysLeft(j.deadline)>=0&&!j.posted).sort((a,b)=>daysLeft(a.deadline)-daysLeft(b.deadline))],
@@ -318,6 +320,13 @@ async function act(a,id){const j=JOBS.find(x=>x.id==id);if(!j)return;
  await fetch("/api/mark",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
  Object.assign(j,body);render();toast(a=="post"?"Marked as posted":"Saved")}
 $("#q").oninput=render;
+$("#addlink").onclick=async()=>{
+ if(window.STATIC)return toast("Add by link works on the laptop page (it reads the job page + company check).");
+ const url=prompt("Paste the job link (best: the OFFICIAL company apply page):");if(!url)return;
+ const company=prompt("Company name (leave empty to detect):","")||"";const note=prompt("Short note for yourself (optional):","")||"";
+ toast("Reading the page + company check…");
+ const r=await fetch("/api/add",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({url,company,note})});const d=await r.json();
+ if(!r.ok)return toast(d.error||"Could not add");await load();TAB="all";$("#q").value=d.company;render();toast("Added: "+d.company+" – "+d.title)};
 $("#run").onclick=async()=>{if(window.STATIC){await fetch("/api/run",{method:"POST",body:"{}"});return toast("On GitHub: tap “Run workflow”. The page updates in ~5 min.")}
  await fetch("/api/run",{method:"POST",body:"{}"});STATE.running=true;render();startPoll()};
 function startPoll(){clearInterval(POLL);POLL=setInterval(async()=>{const s=await (await fetch("/api/state")).json();STATE=s;render();if(!s.running){clearInterval(POLL);load();toast("Search finished")}},1500)}

@@ -366,6 +366,100 @@ def fetch_amazon():
     return list(merged.values())
 
 
+# ---------------------------------------------------------------- official company job feeds (Greenhouse / Lever)
+COMPANY_FEEDS = [  # verified 2026-11-07: public official feeds with India roles. Add more in config.json "company_feeds".
+    ("lv", "paytm", "Paytm"), ("gh", "okta", "Okta"), ("gh", "databricks", "Databricks"), ("gh", "zscaler", "Zscaler"),
+    ("gh", "mongodb", "MongoDB"), ("gh", "purestorage", "Pure Storage"), ("lv", "meesho", "Meesho"), ("gh", "inmobi", "InMobi"),
+    ("gh", "stripe", "Stripe"), ("gh", "gitlab", "GitLab"), ("gh", "rubrik", "Rubrik"), ("lv", "zeta", "Zeta"),
+    ("gh", "hackerrank", "HackerRank"), ("lv", "fampay", "FamPay"), ("gh", "elastic", "Elastic"), ("gh", "twilio", "Twilio"),
+    ("gh", "coinbase", "Coinbase"), ("lv", "cred", "CRED"), ("gh", "commvault", "Commvault"), ("gh", "druva", "Druva"),
+    ("gh", "airbnb", "Airbnb"), ("gh", "groww", "Groww"), ("gh", "figma", "Figma"),
+]
+INDIA = r"india|bengaluru|bangalore|hyderabad|pune|chennai|mumbai|gurugram|gurgaon|noida|delhi|kolkata|ahmedabad|remote - in"
+ENTRY = r"intern|graduate|fresher|trainee|apprentice|new grad|university|campus|entry[- ]level|junior|\bjr\b|associate|" \
+        r"engineer i\b|engineer 1\b|sde ?(i|1)\b|swe ?(i|1)\b|analyst\b|early career"
+NOT_ENTRY = r"senior|\bsr\.?\b|lead\b|manager|staff|principal|director|head\b|architect|\bii\b|\biii\b|\biv\b|\b[2-9]\+? ?years|" \
+            r"specialist ii|vp\b|counsel"
+
+
+def fetch_company_feeds(cfg):
+    feeds = COMPANY_FEEDS + [tuple(x) for x in cfg.get("company_feeds", [])]
+    jobs = []
+    for ats, slug, name in feeds:
+        try:
+            if ats == "gh":
+                r = get(f"https://boards-api.greenhouse.io/v1/boards/{slug}/jobs")
+                rows = [(j.get("title", ""), (j.get("location") or {}).get("name", ""), j.get("absolute_url"), j.get("id"),
+                         j.get("updated_at")) for j in (r.json().get("jobs", []) if r is not None and r.ok else [])]
+            else:
+                r = get(f"https://api.lever.co/v0/postings/{slug}?mode=json")
+                rows = [(j.get("text", ""), (j.get("categories") or {}).get("location", ""), j.get("hostedUrl"), j.get("id"),
+                         None) for j in (r.json() if r is not None and r.ok else [])]
+        except Exception as e:
+            log(f"  feed {name} failed: {e}")
+            continue
+        for title, loc, url, jid, upd in rows:
+            if not re.search(INDIA, loc or "", re.I) or not re.search(ENTRY, title, re.I) or re.search(NOT_ENTRY, title, re.I):
+                continue
+            jobs.append({
+                "id": f"feed-{slug}-{jid}", "source": "Company careers (official)", "kind": "Internship" if re.search(
+                    r"intern", title, re.I) else "Job", "company": name, "title": title, "tier": 3,
+                "why": f"Official {name} careers feed: entry-level role in India", "tests": [], "duration": "", "pattern": [],
+                "rounds": [], "batch": batches(title), "pay": "", "location": loc, "deadline": None, "registered": 0,
+                "apply_url": url, "source_url": url, "summary": f"{title}, {loc} (official {name} careers page)", "body": title,
+            })
+        time.sleep(0.3)
+    log(f"Company feeds: {len(jobs)} entry-level India roles from {len(feeds)} official feeds")
+    return jobs
+
+
+# ---------------------------------------------------------------- add by link (a job the user found anywhere)
+def add_by_link(url, company="", note=""):
+    """Reads the page the user pasted (normally the official apply page) and makes a radar card from it."""
+    if not re.match(r"^https?://", url or ""):
+        raise ValueError("Paste a full link starting with https://")
+    r = get(url)
+    html_ = r.text if r is not None and r.ok else ""
+    t = text_of(html_) if html_ else ""
+    if len(t) < 200:
+        t = chrome_text(url) or t
+    og = lambda p: (re.search(rf'<meta[^>]+property="og:{p}"[^>]+content="([^"]+)"', html_ or "", re.I) or [None, ""])[1]
+    title = html.unescape(og("title") or (re.search(r"<title[^>]*>(.*?)</title>", html_ or "", re.S | re.I) or [None, ""])[1]).strip()
+    h1 = text_of((re.search(r"<h1[^>]*>(.*?)</h1>", html_ or "", re.S | re.I) or [None, ""])[1]).strip()
+    m = re.search(r"job application for (.+?) at (.+)$", title, re.I)
+    if m:
+        title, company = m.group(1), company or m.group(2)
+    elif h1 and 4 < len(h1) < 120 and not re.search(r"careers?|jobs?$|sign in|log ?in", h1, re.I):
+        title = h1
+    title = re.split(r"\s+[|–]\s+", title)[0][:120] or "Job opening"
+    dom = re.sub(r"^www\.", "", requests.utils.urlparse(url).netloc)
+    company = company or html.unescape(og("site_name")) or dom.split(".")[0].title()
+    dl = None
+    for pos, d in dates_in(t):
+        if re.search(r"last date|apply by|deadline|closes|closing|apply before|till", t[max(0, pos - 60): pos], re.I) and d > now():
+            dl = d.replace(hour=23, minute=59).isoformat()
+            break
+    tests = text_test_dates(t)
+    j = {"id": "add-" + hashlib.sha1(url.encode()).hexdigest()[:12], "source": "Added by you", "kind": "Job",
+         "company": company, "title": title, "tier": 2 if tests or re.search(TEST_WORDS, t, re.I) else 3,
+         "why": "Added by you" + (f": {note}" if note else "") + (" · posting mentions a test" if re.search(TEST_WORDS, t, re.I) else ""),
+         "tests": tests, "duration": duration(t), "pattern": sections(t[:4000]) if re.search(TEST_WORDS, t, re.I) else [],
+         "rounds": [], "batch": batches(t), "pay": "", "location": "", "deadline": dl, "registered": 0,
+         "apply_url": url, "source_url": url, "summary": t[:600], "body": t[:5000],
+         "first_seen": now().isoformat(), "last_seen": now().isoformat(), "open": True}
+    if re.search(r"intern", title, re.I):
+        j["kind"] = "Internship"
+    categorize(j)
+    j["check"] = company_check(j)
+    trust_score(j)
+    j["score"] = score(j) + 500  # your own picks sit near the top
+    with MARK_LOCK:
+        allj = load(JOBS, {})
+        allj[j["id"]] = j
+        save(JOBS, allj)
+    return j
+
+
 # ---------------------------------------------------------------- news leads (mass drives)
 DRIVE_WORDS = r"(off[- ]?campus|nqt|hiring drive|mass hiring|fresher(s)? (hiring|recruitment|drive)|registration (open|starts|begins|link)|" \
               r"exam date|test date|apply (now|online)|recruitment 202\d|hiring 202\d|graduate (program|hiring)|genc|elite nlth|" \
@@ -761,7 +855,7 @@ def trust_score(j):
     for f in j.get("flags") or []:
         s -= 45 if "money" in f.lower() or "too-good" in f.lower() else 25
         why.append(f"-{45 if 'money' in f.lower() or 'too-good' in f.lower() else 25} {f}")
-    if j.get("source") == "Amazon jobs":
+    if j.get("source") in ("Amazon jobs", "Company careers (official)"):
         s += 20; why.append("+20 official company job feed")
     if j.get("source") == "PIB (official)":
         s = max(s, 90); why.append("official Government of India press release (PIB)")
@@ -898,7 +992,7 @@ def run(manual=False):
         log(f"Search started ({'button' if manual else 'scheduled/CLI'})")
         found = []
         for name, fn in [("Unstop", lambda: fetch_unstop(cfg)), ("HackerEarth", fetch_hackerearth),
-                         ("Amazon", fetch_amazon), ("News", lambda: fetch_news(cfg)), ("Govt", lambda: fetch_govt(cfg)),
+                         ("Amazon", fetch_amazon), ("Company feeds", lambda: fetch_company_feeds(cfg)), ("News", lambda: fetch_news(cfg)), ("Govt", lambda: fetch_govt(cfg)),
                          ("Official pages", lambda: fetch_watch(cfg, hashes))]:
             try:
                 found += fn()
@@ -935,7 +1029,7 @@ def run(manual=False):
             except Exception as e:
                 log(f"  check failed {j['id']}: {e}")
         for k, j in old.items():  # not listed any more = closed (kept for history, hidden from the main tabs)
-            if k not in seen_now and j.get("source") != "Official page":
+            if k not in seen_now and j.get("source") not in ("Official page", "Added by you"):
                 j["open"] = False
             d = parse_date(j.get("deadline"))
             if d and d < now():
@@ -1232,6 +1326,12 @@ class Handler(BaseHTTPRequestHandler):
                 return self.send(200, '{"started": false, "reason": "already running"}')
             threading.Thread(target=run, kwargs={"manual": True}, daemon=True).start()
             return self.send(200, '{"started": true}')
+        if self.path == "/api/add":
+            try:
+                j = add_by_link(body.get("url", "").strip(), body.get("company", "").strip(), body.get("note", "").strip())
+                return self.send(200, json.dumps({"id": j["id"], "title": j["title"], "company": j["company"]}, ensure_ascii=False))
+            except Exception as e:
+                return self.send(400, json.dumps({"error": str(e)[:200]}))
         if self.path == "/api/image":
             import job_radar_cards as C
             j = load(JOBS, {}).get(body.get("id"))
