@@ -1,5 +1,5 @@
 {
- "verified": "2026-11-07",
+ "verified": "2026-11-07 (expanded)",
  "note": "Official public job feeds (Greenhouse gh, Lever lv, Ashby ab, SmartRecruiters sr, Workday wd) with India roles. Add more here.",
  "feeds": [
   {
@@ -275,6 +275,196 @@
    "wd": "wd103",
    "site": "AccentureCareers",
    "name": "Accenture"
+  },
+  {
+   "ats": "ab",
+   "slug": "amplitude",
+   "name": "Amplitude"
+  },
+  {
+   "ats": "gh",
+   "slug": "anaplan",
+   "name": "Anaplan"
+  },
+  {
+   "ats": "gh",
+   "slug": "anthropic",
+   "name": "Anthropic"
+  },
+  {
+   "ats": "gh",
+   "slug": "apolloio",
+   "name": "Apollo.io"
+  },
+  {
+   "ats": "gh",
+   "slug": "appian",
+   "name": "Appian"
+  },
+  {
+   "ats": "ab",
+   "slug": "applied",
+   "name": "Applied"
+  },
+  {
+   "ats": "gh",
+   "slug": "appsflyer",
+   "name": "AppsFlyer"
+  },
+  {
+   "ats": "gh",
+   "slug": "aqr",
+   "name": "AQR"
+  },
+  {
+   "ats": "gh",
+   "slug": "bitgo",
+   "name": "BitGo"
+  },
+  {
+   "ats": "gh",
+   "slug": "bloomreach",
+   "name": "Bloomreach"
+  },
+  {
+   "ats": "gh",
+   "slug": "bugcrowd",
+   "name": "Bugcrowd"
+  },
+  {
+   "ats": "gh",
+   "slug": "celonis",
+   "name": "Celonis"
+  },
+  {
+   "ats": "ab",
+   "slug": "cerebras",
+   "name": "Cerebras"
+  },
+  {
+   "ats": "gh",
+   "slug": "cloudsek",
+   "name": "CloudSEK"
+  },
+  {
+   "ats": "gh",
+   "slug": "cockroachlabs",
+   "name": "Cockroach Labs"
+  },
+  {
+   "ats": "gh",
+   "slug": "cognite",
+   "name": "Cognite"
+  },
+  {
+   "ats": "lv",
+   "slug": "coupa",
+   "name": "Coupa"
+  },
+  {
+   "ats": "gh",
+   "slug": "deliveroo",
+   "name": "Deliveroo"
+  },
+  {
+   "ats": "gh",
+   "slug": "devrev",
+   "name": "DevRev"
+  },
+  {
+   "ats": "gh",
+   "slug": "flexport",
+   "name": "Flexport"
+  },
+  {
+   "ats": "gh",
+   "slug": "fluxon",
+   "name": "Fluxon"
+  },
+  {
+   "ats": "ab",
+   "slug": "gainsight",
+   "name": "Gainsight"
+  },
+  {
+   "ats": "ab",
+   "slug": "headout",
+   "name": "Headout"
+  },
+  {
+   "ats": "gh",
+   "slug": "launchdarkly",
+   "name": "LaunchDarkly"
+  },
+  {
+   "ats": "lv",
+   "slug": "linkedin",
+   "name": "LinkedIn"
+  },
+  {
+   "ats": "lv",
+   "slug": "matillion",
+   "name": "Matillion"
+  },
+  {
+   "ats": "gh",
+   "slug": "mixpanel",
+   "name": "Mixpanel"
+  },
+  {
+   "ats": "gh",
+   "slug": "netskope",
+   "name": "Netskope"
+  },
+  {
+   "ats": "ab",
+   "slug": "notion",
+   "name": "Notion"
+  },
+  {
+   "ats": "ab",
+   "slug": "openai",
+   "name": "OpenAI"
+  },
+  {
+   "ats": "lv",
+   "slug": "outreach",
+   "name": "Outreach"
+  },
+  {
+   "ats": "ab",
+   "slug": "redis",
+   "name": "Redis"
+  },
+  {
+   "ats": "ab",
+   "slug": "spotdraft",
+   "name": "SpotDraft"
+  },
+  {
+   "ats": "gh",
+   "slug": "truecaller",
+   "name": "Truecaller"
+  },
+  {
+   "ats": "gh",
+   "slug": "turing",
+   "name": "Turing"
+  },
+  {
+   "ats": "gh",
+   "slug": "zenoti",
+   "name": "Zenoti"
+  },
+  {
+   "ats": "sr",
+   "slug": "AbbVie",
+   "name": "AbbVie"
+  },
+  {
+   "ats": "sr",
+   "slug": "Grab",
+   "name": "Grab"
   }
  ]
 }
