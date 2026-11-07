@@ -1179,6 +1179,9 @@ class Handler(BaseHTTPRequestHandler):
             cfg = load(CONFIG, DEFAULT_CONFIG)
             text = student_roundup(cfg) if "student" in self.path else roundup(cfg)
             return self.send(200, json.dumps({"text": text}, ensure_ascii=False))
+        if self.path.split("?")[0] == "/icon.png":
+            icon = ROOT / "assets" / "brand" / "radar_icon.png"
+            return self.send(200, icon.read_bytes(), "image/png") if icon.exists() else self.send(404, "{}")
         if self.path.startswith("/posts/"):
             import job_radar_cards as C
             p = (C.OUT / requests.utils.unquote(self.path.split("?")[0][7:])).resolve()

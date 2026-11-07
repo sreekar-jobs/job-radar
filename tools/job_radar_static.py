@@ -80,6 +80,9 @@ def main():
     page = page.replace("<script>", "<script>window.STATIC=true;</script>\n<script>", 1)
     (out / "index.html").write_text(page, encoding="utf8")
     (out / ".nojekyll").write_text("")
+    icon = R.ROOT / "assets" / "brand" / "radar_icon.png"
+    if icon.exists():
+        shutil.copy2(icon, out / "icon.png")  # iPhone home-screen icon
     print(f"site built: {len(data['jobs'])} jobs, {len(images)} image sets, {len(scripts)} scripts -> {out}")
 
 
