@@ -1,12 +1,12 @@
 {
  "running": false,
- "started": "2026-11-25T18:46:47.586526+05:30",
- "progress": "Done: 1287 open, 3 guaranteed-test, 224 new today",
- "last_run": "2026-11-25T19:09:20.358410+05:30",
+ "started": "2026-11-26T18:27:07.282790+05:30",
+ "progress": "Done: 1317 open, 3 guaranteed-test, 144 new today",
+ "last_run": "2026-11-26T18:50:45.417181+05:30",
  "counts": {
-  "open": 1287,
+  "open": 1317,
   "tier1": 3,
-  "new_today": 224
+  "new_today": 144
  },
  "watch_hash": {
   "https://careers.wipro.com/elite": "f4a9555607a649be489dce789aec0a3840776815",
